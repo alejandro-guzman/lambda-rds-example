@@ -1,15 +1,23 @@
-import pymysql
-from os import getenv
+"""
+Example AWS Lambda handler.
 
-hostname = getenv('LAMBDA_RDS_HOSTNAME')
-username = getenv('LAMBDA_RDS_USERNAME')
-password = getenv('LAMBDA_RDS_PASSWORD')
-database = getenv('LAMBDA_RDS_DATABASE')
+To debug locally add function invocation:
+lambda_handler(None, None)
+"""
+import os
+import pymysql
+
+hostname = os.getenv('LAMBDA_RDS_HOSTNAME')
+username = os.getenv('LAMBDA_RDS_USERNAME')
+password = os.getenv('LAMBDA_RDS_PASSWORD')
+database = os.getenv('LAMBDA_RDS_DATABASE')
 
 connection = pymysql.connect(host=hostname, user=username,
     password=password, database=database)
 
 def lambda_handler(event, context):
+    """Example AWS Lambda hander"""
+
     # debug event and context
     print('event', event)
     print('context', context)
