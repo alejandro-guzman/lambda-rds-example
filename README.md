@@ -8,6 +8,18 @@ Reference example of AWS Lambda connecting to RDS server
 zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
 ```
 
+## Create `.env`
+
+```bash
+$ cat << EOF > .env
+export LAMBDA_RDS_HOSTNAME=dbserver.host.com
+export LAMBDA_RDS_USERNAME=admin
+export LAMBDA_RDS_PASSWORD=s3cr3t
+export LAMBDA_RDS_DATABASE=demodb1
+EOF
+$ source .env
+```
+
 ## Initialize database
 
 Run initialize script
@@ -33,7 +45,7 @@ docker run -it --rm mysql mysql --host=$LAMBDA_RDS_HOSTNAME --user=$LAMBDA_RDS_U
 Create AWS Lambda function
 
 ```bash
-docker run --rm -it -v ~/.aws:/root/.aws -v $(pwd):/tmp amazon/aws-cli lambda --output json \
+docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp amazon/aws-cli lambda --output json \
     create-function \
     --function-name LambdaRDSExampleFunction \
     --runtime python3.8 \
@@ -47,10 +59,6 @@ Add environment variables to function
 
 ```bash
 docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp \
-    -e LAMBDA_RDS_HOSTNAME=$LAMBDA_RDS_HOSTNAME \
-    -e LAMBDA_RDS_USERNAME=$LAMBDA_RDS_USERNAME \
-    -e LAMBDA_RDS_PASSWORD=$LAMBDA_RDS_PASSWORD \
-    -e LAMBDA_RDS_DATABASE=$LAMBDA_RDS_DATABASE \
     amazon/aws-cli lambda --output json \
     update-function-configuration \
     --function-name LambdaRDSExampleFunction \
