@@ -24,7 +24,7 @@ python3 -m pip install -t $(pwd) pymysql
 
 ```bash
 $ cat << EOF > .env
-export LAMBDA_RDS_HOSTNAME=dbserver.host.com
+export LAMBDA_RDS_HOSTNAME=name.xxxxxxxxxxxx.region.rds.amazonaws.com
 export LAMBDA_RDS_USERNAME=admin
 export LAMBDA_RDS_PASSWORD=s3cr3t
 export LAMBDA_RDS_DATABASE=demodb1
