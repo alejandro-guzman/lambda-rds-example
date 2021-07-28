@@ -38,17 +38,19 @@ INSERT INTO user (user_id, first_name, last_name, company_id) VALUES
 (5, 'Harvey', 'E', 3),
 (6, 'Frank', 'S', 3);
 
--- SELECT * FROM company c JOIN user u ON c.company_id = u.company_id;
+/*
+SELECT * FROM company c JOIN user u ON c.company_id = u.company_id;
 
 -- test deleting user
--- SELECT SLEEP(5);
+SELECT SLEEP(5);
 
--- SET @deleted_user_id = 3;
+SET @deleted_user_id = 3;
 
--- UPDATE user SET deleted_on = now() WHERE user_id = @deleted_user_id;
+UPDATE user SET deleted_on = now() WHERE user_id = @deleted_user_id;
 
--- SELECT user_id, first_name, last_name,
---     unix_timestamp(created_on) AS 'created_on_unix_ts',
---     unix_timestamp(updated_on) AS 'updated_on_unix_ts',
---     unix_timestamp(deleted_on) AS 'deleted_on_unix_ts'
--- FROM user WHERE user_id = @deleted_user_id;
+SELECT user_id, first_name, last_name,
+    unix_timestamp(created_on) AS 'created_on_unix_ts',
+    unix_timestamp(updated_on) AS 'updated_on_unix_ts',
+    unix_timestamp(deleted_on) AS 'deleted_on_unix_ts'
+FROM user WHERE user_id = @deleted_user_id;
+*/

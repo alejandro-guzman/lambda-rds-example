@@ -2,10 +2,22 @@
 
 Reference example of AWS Lambda connecting to RDS server
 
-## Create zip for AWS Lambda
+## Ordered Steps
+
+- [x] pymysql
+- [x] .env
+- [ ] rds server
+- [ ] rds init
+- [x] function.zip
+- [ ] lambda role
+- [x] lambda func
+- [x] lambda env
+- [ ] lambda trigger
+
+## Pull `pymysql` dependency
 
 ```bash
-zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
+python3 -m pip install -t $(pwd) pymysql
 ```
 
 ## Create `.env`
@@ -18,6 +30,12 @@ export LAMBDA_RDS_PASSWORD=s3cr3t
 export LAMBDA_RDS_DATABASE=demodb1
 EOF
 $ source .env
+```
+
+## Create zip for AWS Lambda
+
+```bash
+zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
 ```
 
 ## Initialize database
