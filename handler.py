@@ -1,6 +1,9 @@
 """
 Example AWS Lambda handler.
 
+Requires pymysql bundles with handler:
+`python3 -m pip install -t $(pwd) pymysql`
+
 To debug locally add function invocation:
 lambda_handler(None, None)
 """

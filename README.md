@@ -4,41 +4,77 @@ Reference example of AWS Lambda connecting to RDS server
 
 ## Ordered Steps
 
-- [x] pymysql
 - [x] .env
+- [x] function.zip
 - [ ] rds server
 - [ ] rds init
-- [x] function.zip
 - [ ] lambda role
 - [x] lambda func
 - [x] lambda env
 - [ ] lambda trigger
 
-## Pull `pymysql` dependency
-
-```bash
-python3 -m pip install -t $(pwd) pymysql
-```
-
-## Create `.env`
+## 1. Create `.env`
 
 ```bash
 $ cat << EOF > .env
-export LAMBDA_RDS_HOSTNAME=name.xxxxxxxxxxxx.region.rds.amazonaws.com
 export LAMBDA_RDS_USERNAME=admin
-export LAMBDA_RDS_PASSWORD=s3cr3t
+export LAMBDA_RDS_PASSWORD=s3cr3ts3cr3t
 export LAMBDA_RDS_DATABASE=demodb1
+export LAMBDA_RDS_DB_INSTANCE_ID=demodbinstance
 EOF
 $ source .env
 ```
 
-## Create zip for AWS Lambda
+<details>
+    <summary>Create a secure password!</summary>
 
 ```bash
-zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
+head -c 16 /dev/urandom | base64 | tr -dc A-Za-z0-9; echo
+```
+</details>
+
+## 2. Create AWS RDS instance
+
+```bash
+docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli rds --output json \
+    create-db-instance \
+    --db-instance-identifier $LAMBDA_RDS_DB_INSTANCE_ID \
+    --db-name $LAMBDA_RDS_DATABASE \
+    --db-instance-class db.t2.micro \
+    --engine mysql \
+    --allocated-storage 20 \
+    --master-username $LAMBDA_RDS_USERNAME \
+    --master-user-password $LAMBDA_RDS_PASSWORD \
+    --publicly-accessible
 ```
 
-## Initialize database
+<details>
+    <summary>To delete AWS RDS resource</summary>
+   
+```bash
+docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli rds --output json \
+    delete-db-instance --db-instance-identifier $LAMBDA_RDS_DB_INSTANCE_ID --skip-final-snapshot
+```
+</details>
+
+## 3. Get RDS hostname
+
+```bash
+docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli rds --output json \
+    describe-db-instances --db-instance-identifier $LAMBDA_RDS_DB_INSTANCE_ID \
+    | jq -r .DBInstances[0].Endpoint.Address
+```
+
+## 4. Add RDS hostname to `.env`
+
+```bash
+$ cat << EOF >> .env
+export LAMBDA_RDS_HOSTNAME=demodbinstance.xxxxxxxxxxxx.region.rds.amazonaws.com
+EOF
+$ source .env
+```
+
+## 5. Initialize database
 
 Run initialize script
 
@@ -58,6 +94,12 @@ docker run -it --rm mysql mysql --host=$LAMBDA_RDS_HOSTNAME --user=$LAMBDA_RDS_U
 ```
 </details>
 
+## 6. Create zip for AWS Lambda
+
+```bash
+zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
+```
+
 ## Create AWS resources
 
 Create AWS Lambda function
@@ -76,8 +118,7 @@ docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp amazon/aws-cli lambda --outp
 Add environment variables to function
 
 ```bash
-docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp \
-    amazon/aws-cli lambda --output json \
+docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli lambda --output json \
     update-function-configuration \
     --function-name LambdaRDSExampleFunction \
     --environment "Variables={LAMBDA_RDS_HOSTNAME=$LAMBDA_RDS_HOSTNAME,LAMBDA_RDS_USERNAME=$LAMBDA_RDS_USERNAME,LAMBDA_RDS_PASSWORD=$LAMBDA_RDS_PASSWORD,LAMBDA_RDS_DATABASE=$LAMBDA_RDS_DATABASE}"
@@ -85,5 +126,6 @@ docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp \
 
 todo: 
 - create role from cli
-- create rds from cli
+- ~~create rds from cli~~
 - add trigger for lambda
+- organize the docs better
