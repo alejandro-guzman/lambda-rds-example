@@ -5,6 +5,8 @@ To debug locally add function invocation:
 lambda_handler(None, None)
 """
 import os
+import sys
+import json
 import pymysql
 
 hostname = os.getenv('LAMBDA_RDS_HOSTNAME')
@@ -23,8 +25,9 @@ def lambda_handler(event, context):
     print('context', context)
 
     cursor = connection.cursor()
-    cursor.execute('SELECT * FROM transactions')
+    cursor.execute('SELECT first_name, company_name FROM user u JOIN company c ON u.company_id = c.company_id')
 
     rows = cursor.fetchall()
     for row in rows:
-        print('{0} {1} {2}'.format(row[0], row[1], row[2]))
+        res = {'first_name': row[0], 'company_name': row[1]}
+        print(json.dumps(res))
