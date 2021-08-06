@@ -2,17 +2,6 @@
 
 Reference example of AWS Lambda connecting to RDS server
 
-## Ordered Steps
-
-- [x] .env
-- [x] function.zip
-- [ ] rds server
-- [ ] rds init
-- [ ] lambda role
-- [x] lambda func
-- [x] lambda env
-- [ ] lambda trigger
-
 ## 1. Create `.env`
 
 ```bash
@@ -100,7 +89,7 @@ docker run -it --rm mysql mysql --host=$LAMBDA_RDS_HOSTNAME --user=$LAMBDA_RDS_U
 zip -r9 function.zip . -i 'handler.py' -i 'pymysql/*' -i '*.dist-info/*'
 ```
 
-## Create AWS resources
+## Create AWS Lambda
 
 Create AWS Lambda function
 
@@ -112,8 +101,17 @@ docker run --rm -v ~/.aws:/root/.aws -v $(pwd):/tmp amazon/aws-cli lambda --outp
     --handler handler.lambda_handler \
     --description 'AWS Lambda & RDS example function' \
     --zip-file fileb:///tmp/function.zip \
-    --role arn:aws:iam::380453758307:role/service-role/RDSQueryFromLambdaRole
+    --role arn:aws:iam::*:role/service-role/<ROLE>
 ```
+
+<details>
+    <summary>ROLE</summary>
+
+Role with the following policies:
+
+- AWSLambdaVPCAccessExecutionRole
+- AWSLambdaBasicExecutionRole
+</details>
 
 Add environment variables to function
 
@@ -123,9 +121,3 @@ docker run --rm -v ~/.aws:/root/.aws amazon/aws-cli lambda --output json \
     --function-name LambdaRDSExampleFunction \
     --environment "Variables={LAMBDA_RDS_HOSTNAME=$LAMBDA_RDS_HOSTNAME,LAMBDA_RDS_USERNAME=$LAMBDA_RDS_USERNAME,LAMBDA_RDS_PASSWORD=$LAMBDA_RDS_PASSWORD,LAMBDA_RDS_DATABASE=$LAMBDA_RDS_DATABASE}"
 ```
-
-todo: 
-- create role from cli
-- ~~create rds from cli~~
-- add trigger for lambda
-- organize the docs better
